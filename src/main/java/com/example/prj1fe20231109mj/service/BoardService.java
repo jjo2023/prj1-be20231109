@@ -5,6 +5,8 @@ import com.example.prj1fe20231109mj.mapper.BoardMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 
@@ -32,4 +34,25 @@ public class BoardService {
         }
         return true;
     }
+
+    public List<Board> list() {
+        return mapper.selectAll();
+    }
+
+    public Board get(Integer id) {
+
+        return mapper.selectById(id);
+    }
+
+    public boolean remove(Integer id) {
+        return mapper.deleteById(id) == 1;
+    }
+
+
+    public boolean update(Board board) {
+        return mapper.update(board) == 1;
+
+    }
+
+
 }

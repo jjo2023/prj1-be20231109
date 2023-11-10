@@ -5,10 +5,9 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-public class Board {
-    private Integer id;
-    private String title;
-    private String content;
-    private String writer;
+public class Member {
+    private String id;
+    private String password;
+    private String email;
     private LocalDateTime inserted;
 }
