@@ -1,6 +1,7 @@
 package com.example.prj1fe20231109mj.service;
 
 import com.example.prj1fe20231109mj.domain.Member;
+import com.example.prj1fe20231109mj.mapper.BoardMapper;
 import com.example.prj1fe20231109mj.mapper.MemberMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import java.util.RandomAccess;
 public class MemberService {
 
     private final MemberMapper mapper;
+    private final BoardMapper boardMapper;
 
     public boolean add(Member member) {
         return mapper.insert(member) == 1;
@@ -59,6 +61,10 @@ public class MemberService {
 
 
     public boolean deleteMember(String id) {
+        // 1. 이 멤버가 작성한 게시물 삭제
+        boardMapper.deleteByWriter(id);
+        // 2. 이 멤버 삭제
+
         return mapper.deleteById(id) == 1;
     }
 
@@ -81,12 +87,17 @@ public class MemberService {
         Member dbmember = mapper.selectById(member.getId());
 
         if (dbmember != null) {
-            if (dbmember.getPassword().equals(member.getPassword())){
+            if (dbmember.getPassword().equals(member.getPassword())) {
                 dbmember.setPassword("");
-                request.setAttribute("login",dbmember, RequestAttributes.SCOPE_SESSION);
+                request.setAttribute("login", dbmember, RequestAttributes.SCOPE_SESSION);
                 return true;
             }
         }
         return false;
+    }
+
+    public boolean hasAccess(String id, Member login) {
+
+        return login.getId().equals(id);
     }
 }

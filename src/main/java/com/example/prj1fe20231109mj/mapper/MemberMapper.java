@@ -71,6 +71,7 @@ SELECT nickName FROM member
 WHERE nickName = #{nickName}
 """)
     String selectNickName(String nickName);
+
 }
 
 

@@ -70,9 +70,21 @@ public class BoardController {
         }
     }
 
+
+    // 게시글 수정시!
     @PutMapping("edit")
-    public ResponseEntity edit(@RequestBody Board board) {
+    public ResponseEntity edit(@RequestBody Board board,
+                               @SessionAttribute(value = "login", required = false) Member login) {
         // System.out.println(board);
+
+        if (login == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build(); // 401
+        }
+        if (!service.hasAccess(board.getId(),login)){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); // 403
+        }
+
+
         if (service.validate(board)) {
 
             if (service.update(board)) {
