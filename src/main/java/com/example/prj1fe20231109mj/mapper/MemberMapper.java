@@ -1,10 +1,7 @@
 package com.example.prj1fe20231109mj.mapper;
 
 import com.example.prj1fe20231109mj.domain.Member;
-import org.apache.ibatis.annotations.Delete;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 
@@ -12,8 +9,8 @@ import java.util.List;
 public interface MemberMapper {
 
     @Insert("""
-INSERT INTO member(id, password, email)
-VALUES (#{id},#{password},#{email})
+INSERT INTO member(id, password, email, nickName)
+VALUES (#{id},#{password},#{email}, #{nickName})
 """)
     int insert(Member member);
 
@@ -33,7 +30,7 @@ WHERE email= #{email}
 
 
     @Select("""
-SELECT id, password, email, inserted FROM member
+SELECT id, password, email, inserted, nickName FROM member
 ORDER BY inserted DESC ;
 """)
 
@@ -53,6 +50,27 @@ DELETE FROM member
 WHERE id = #{id}
 """)
     int deleteById(String id);
+@Update("""
+        <script>
+        UPDATE member
+        SET 
+          <if test="password != ''">
+          password = #{password},
+          </if>
+          email = #{email},
+          nickName = #{nickName}
+        WHERE id = #{id}
+        </script>
+
+        """)
+    int update(Member member);
+
+
+@Select("""
+SELECT nickName FROM member
+WHERE nickName = #{nickName}
+""")
+    String selectNickName(String nickName);
 }
 
 

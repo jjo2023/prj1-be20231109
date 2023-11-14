@@ -4,8 +4,12 @@ import com.example.prj1fe20231109mj.domain.Member;
 import com.example.prj1fe20231109mj.mapper.MemberMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
+import java.util.RandomAccess;
 
 @Service
 @RequiredArgsConstructor
@@ -15,7 +19,6 @@ public class MemberService {
 
     public boolean add(Member member) {
         return mapper.insert(member) == 1;
-
     }
 
     public String getId(String id) {
@@ -24,24 +27,27 @@ public class MemberService {
 
     public String getEmail(String email) {
         return mapper.selectEmail(email);
+
     }
 
     public boolean validate(Member member) {
         if (member == null) {
             return false;
         }
+
         if (member.getEmail().isBlank()) {
             return false;
         }
+
         if (member.getPassword().isBlank()) {
             return false;
         }
+
         if (member.getId().isBlank()) {
-
+            return false;
         }
-            return true;
-        }
-
+        return true;
+    }
 
     public List<Member> list() {
         return mapper.selectAll();
@@ -51,7 +57,36 @@ public class MemberService {
         return mapper.selectById(id);
     }
 
+
     public boolean deleteMember(String id) {
         return mapper.deleteById(id) == 1;
+    }
+
+    public boolean update(Member member) {
+//        Member oldMember = mapper.selectById(member.getId());
+//
+//        if (member.getPassword().equals("")) {
+//            member.setPassword(oldMember.getPassword());
+//        }
+
+        return mapper.update(member) == 1;
+
+    }
+
+    public String getNickName(String nickName) {
+        return mapper.selectNickName(nickName);
+    }
+
+    public boolean login(Member member, WebRequest request) {
+        Member dbmember = mapper.selectById(member.getId());
+
+        if (dbmember != null) {
+            if (dbmember.getPassword().equals(member.getPassword())){
+                dbmember.setPassword("");
+                request.setAttribute("login",dbmember, RequestAttributes.SCOPE_SESSION);
+                return true;
+            }
+        }
+        return false;
     }
 }
