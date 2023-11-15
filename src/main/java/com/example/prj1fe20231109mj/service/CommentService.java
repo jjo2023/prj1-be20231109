@@ -6,6 +6,8 @@ import com.example.prj1fe20231109mj.mapper.CommentMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class CommentService {
@@ -31,6 +33,9 @@ public class CommentService {
 
     }
 
+    public List<Comment> list(Integer boardId) {
+        return mapper.selectByBoardId(boardId);
+    }
 }
 
 
