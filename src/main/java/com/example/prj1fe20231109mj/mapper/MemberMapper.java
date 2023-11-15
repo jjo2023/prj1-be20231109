@@ -1,5 +1,6 @@
 package com.example.prj1fe20231109mj.mapper;
 
+import com.example.prj1fe20231109mj.domain.Auth;
 import com.example.prj1fe20231109mj.domain.Member;
 import org.apache.ibatis.annotations.*;
 
@@ -72,6 +73,12 @@ WHERE nickName = #{nickName}
 """)
     String selectNickName(String nickName);
 
+
+@Select("""
+SELECT *FROM auth
+WHERE memberId = #{id}
+""")
+    List<Auth> selectAuthById(String id);
 }
 
 
