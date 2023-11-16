@@ -22,7 +22,7 @@ public class BoardController {
     public ResponseEntity add(@RequestBody Board board,
                               @SessionAttribute(value = "login", required = false) Member login) {
 
-        System.out.println("login = " + login);
+        // System.out.println("login = " + login);
 
         if (login == null) {
 

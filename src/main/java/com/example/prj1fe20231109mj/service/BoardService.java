@@ -3,6 +3,7 @@ package com.example.prj1fe20231109mj.service;
 import com.example.prj1fe20231109mj.domain.Board;
 import com.example.prj1fe20231109mj.domain.Member;
 import com.example.prj1fe20231109mj.mapper.BoardMapper;
+import com.example.prj1fe20231109mj.mapper.CommentMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -10,12 +11,10 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-
 public class BoardService {
 
-
-    private final MemberService memberService;
     private final BoardMapper mapper;
+    private final CommentMapper commentMapper;
 
     public boolean save(Board board, Member login) {
         board.setWriter(login.getId());
@@ -24,7 +23,7 @@ public class BoardService {
     }
 
     public boolean validate(Board board) {
-        if (board == null){
+        if (board == null) {
             return false;
         }
         if (board.getContent() == null || board.getContent().isBlank()) {
@@ -42,25 +41,31 @@ public class BoardService {
     }
 
     public Board get(Integer id) {
-
         return mapper.selectById(id);
     }
 
     public boolean remove(Integer id) {
+        // 1. 게시물에 달린 댓글들 지우기
+        commentMapper.deleteByBoardId(id);
+
         return mapper.deleteById(id) == 1;
     }
-
 
     public boolean update(Board board) {
         return mapper.update(board) == 1;
 
     }
+
     public boolean hasAccess(Integer id, Member login) {
-        if (memberService.isAdmin(login)){
+        if (login == null) {
+            return false;
+        }
+        if (login.isAdmin()) {
             return true;
         }
-
         Board board = mapper.selectById(id);
+
+
         return board.getWriter().equals(login.getId());
     }
 

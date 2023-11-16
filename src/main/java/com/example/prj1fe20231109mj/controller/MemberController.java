@@ -90,6 +90,7 @@ public class MemberController {
     // 탈퇴하려고 할 때
     @DeleteMapping
     public ResponseEntity delete(String id,
+                                 HttpSession session,
                                  @SessionAttribute(value = "login", required = false) Member login) {
         // TODO : 로그인 했는 지? -> 안했으면 401
         // TODO : 자기 정보인지? -> 아니면 403
@@ -120,7 +121,7 @@ public class MemberController {
         }
 
         if (!service.hasAccess(member.getId(), login)){
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); // 401
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); // 403
         }
 
         if (service.update(member)) {

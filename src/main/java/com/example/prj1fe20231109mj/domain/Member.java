@@ -13,4 +13,15 @@ public class Member {
     private LocalDateTime inserted;
     private String nickName;
     private List<Auth> auth;
+
+
+    public boolean isAdmin() {
+        if (auth != null) {
+            return auth.stream()
+                    .map(a -> a.getName())
+                    .anyMatch(n -> n.equals("admin"));
+        }
+
+        return false;
+    }
 }
