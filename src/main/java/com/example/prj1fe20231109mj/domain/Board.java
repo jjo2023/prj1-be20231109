@@ -1,5 +1,6 @@
 package com.example.prj1fe20231109mj.domain;
 
+import com.example.prj1fe20231109mj.util.AppUtil;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -14,4 +15,9 @@ public class Board {
     private LocalDateTime inserted;
     private Integer countComment;
     private Integer countLike;
+
+
+    public String getAgo() {
+        return AppUtil.getAgo(inserted, LocalDateTime.now());
+    }
 }
