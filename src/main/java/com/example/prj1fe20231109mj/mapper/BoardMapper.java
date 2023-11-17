@@ -26,9 +26,10 @@ FROM board b
          LEFT JOIN comment c on b.id = c.boardId
          LEFT JOIN boardlike l on b.id = l.boardId
 GROUP BY b.id
-ORDER BY id DESC;
+ORDER BY id DESC
+LIMIT #{from},10
                     """)
-    List<Board> selectAll();
+    List<Board> selectAll(Integer from);
 
     @Select("""
             SELECT b.id, b.title, b.content, b.writer, m.nickName, b.inserted
@@ -67,6 +68,12 @@ ORDER BY id DESC;
         WHERE writer = #{id}
         """)
     List<Integer> selectIdListByMemberId(String writer);
+
+    @Select("""
+SELECT COUNT(*) FROM board;
+
+""")
+    int countAll();
 }
 
 

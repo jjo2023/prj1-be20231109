@@ -9,7 +9,10 @@ import com.example.prj1fe20231109mj.mapper.LikeMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -39,8 +42,38 @@ public class BoardService {
         return true;
     }
 
-    public List<Board> list() {
-        return mapper.selectAll();
+    public Map<String, Object> list(Integer page) {
+        Map<String, Object> map = new HashMap<>();
+        Map<String, Object> pageInfo = new HashMap<>();
+
+        int countAll = mapper.countAll();
+        int lastPageNumber = (countAll -1) / 10 + 1;
+        int startPageNumber = (page -1) / 10 * 10 + 1;
+        int endPageNumber = startPageNumber + 9;
+        endPageNumber = Math.min(endPageNumber,lastPageNumber);
+        int prevPageNumber = startPageNumber -10;
+        int nextPageNumber = endPageNumber +1;
+
+        pageInfo.put("currentPageNumber", page);
+        pageInfo.put("startPageNumber", startPageNumber);
+        pageInfo.put("endPageNumber", endPageNumber);
+        if (prevPageNumber > 0){
+            pageInfo.put("prevPageNumber", prevPageNumber);
+        }
+        if (nextPageNumber <= lastPageNumber) {
+
+            pageInfo.put("nextPageNumber",nextPageNumber);
+        }
+
+
+
+        pageInfo.put("prevPageNumber", startPageNumber - 10);
+        pageInfo.put("nextPageNumber", 0);
+
+        int from = (page - 1) * 10;
+        map.put("boardList", mapper.selectAll(from));
+        map.put("pageInfo", pageInfo);
+        return map;
     }
 
     public Board get(Integer id) {
@@ -48,7 +81,7 @@ public class BoardService {
     }
 
     public boolean remove(Integer id) {
-        // 1. 게시물에 달린 댓글들 지우기
+        // 게시물에 달린 댓글들 지우기
         commentMapper.deleteByBoardId(id);
 
         // 좋아요 테이블 지우기
