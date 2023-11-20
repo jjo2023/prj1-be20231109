@@ -1,7 +1,6 @@
 package com.example.prj1fe20231109mj.service;
 
 import com.example.prj1fe20231109mj.domain.Board;
-import com.example.prj1fe20231109mj.domain.Like;
 import com.example.prj1fe20231109mj.domain.Member;
 import com.example.prj1fe20231109mj.mapper.BoardMapper;
 import com.example.prj1fe20231109mj.mapper.CommentMapper;
@@ -10,9 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -42,11 +39,12 @@ public class BoardService {
         return true;
     }
 
-    public Map<String, Object> list(Integer page) {
+    public Map<String, Object> list(Integer page, String keyword) {
         Map<String, Object> map = new HashMap<>();
         Map<String, Object> pageInfo = new HashMap<>();
 
-        int countAll = mapper.countAll();
+        // int countAll = mapper.countAll();
+        int countAll = mapper.countAll("%"+ keyword +"%"); // %%
         int lastPageNumber = (countAll -1) / 10 + 1;
         int startPageNumber = (page -1) / 10 * 10 + 1;
         int endPageNumber = startPageNumber + 9;
@@ -71,10 +69,12 @@ public class BoardService {
         pageInfo.put("nextPageNumber", 0);
 
         int from = (page - 1) * 10;
-        map.put("boardList", mapper.selectAll(from));
+        map.put("boardList", mapper.selectAll(from,"%"+keyword+"%"));
         map.put("pageInfo", pageInfo);
         return map;
     }
+
+
 
     public Board get(Integer id) {
         return mapper.selectById(id);
