@@ -10,8 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
@@ -19,6 +19,8 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.springframework.cglib.core.CollectionUtils.bucket;
 
 @Service
 @RequiredArgsConstructor
@@ -59,7 +61,7 @@ public class BoardService {
 
     private void upload(Integer boardId, MultipartFile file) throws IOException {
 
-        String key = "prj1/" + boardId + "/" +file.getOriginalFilename();
+        String key = "prj1/" + boardId + "/" + file.getOriginalFilename();
 
         PutObjectRequest objectRequest = PutObjectRequest.builder()
                 .bucket(bucket)
