@@ -9,6 +9,7 @@ import com.example.prj1fe20231109mj.mapper.LikeMapper;
 import com.example.prj1fe20231109mj.mapper.MemberMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -18,6 +19,7 @@ import java.util.RandomAccess;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(rollbackFor = Exception.class)
 public class MemberService {
 
     private final MemberMapper mapper;
