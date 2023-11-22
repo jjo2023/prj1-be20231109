@@ -23,7 +23,7 @@ public class BoardController {
 
     @PostMapping("add")
     public ResponseEntity add(Board board,
-                             @RequestParam(value = "file[]", required = false) MultipartFile[] files,
+                              @RequestParam(value = "uploadFiles[]", required = false) MultipartFile[] files,
                               @SessionAttribute(value = "login", required = false) Member login) throws IOException {
 
         if (login == null) {
@@ -47,10 +47,11 @@ public class BoardController {
     @GetMapping("list")
     public Map<String, Object> list(
             @RequestParam(value = "p", defaultValue = "1") Integer page,
-            @RequestParam(value = "k", defaultValue = "") String keyword) {
+            @RequestParam(value = "k", defaultValue = "") String keyword,
+            @RequestParam(value = "c", defaultValue = "all") String category) {
 
 
-        return service.list(page, keyword);
+        return service.list(page, keyword, category);
     }
 
     @GetMapping("id/{id}")
@@ -77,8 +78,11 @@ public class BoardController {
     }
 
     @PutMapping("edit")
-    public ResponseEntity edit(@RequestBody Board board,
-                               @SessionAttribute(value = "login", required = false) Member login) {
+    public ResponseEntity edit(Board board,
+                               @RequestParam(value = "removeFileIds[]", required = false) List<Integer> removeFileIds,
+                               @RequestParam(value = "uploadFiles[]", required = false) MultipartFile[] uploadFiles,
+                               @SessionAttribute(value = "login", required = false) Member login) throws IOException {
+
         if (login == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build(); // 401
         }
@@ -88,7 +92,7 @@ public class BoardController {
         }
 
         if (service.validate(board)) {
-            if (service.update(board)) {
+            if (service.update(board, removeFileIds, uploadFiles)) {
                 return ResponseEntity.ok().build();
             } else {
                 return ResponseEntity.internalServerError().build();
@@ -98,10 +102,6 @@ public class BoardController {
         }
     }
 }
-
-
-
-
 
 
 

@@ -23,8 +23,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.springframework.cglib.core.CollectionUtils.bucket;
-
 
 @Service
 @RequiredArgsConstructor
@@ -96,11 +94,11 @@ public class BoardService {
         return true;
     }
 
-    public Map<String, Object> list(Integer page, String keyword) {
+    public Map<String, Object> list(Integer page, String keyword, String category) {
         Map<String, Object> map = new HashMap<>();
         Map<String, Object> pageInfo = new HashMap<>();
 
-        int countAll = mapper.countAll("%" + keyword + "%");
+        int countAll = mapper.countAll("%" + keyword + "%", category);
         int lastPageNumber = (countAll - 1) / 10 + 1;
         int startPageNumber = (page - 1) / 10 * 10 + 1;
         int endPageNumber = startPageNumber + 9;
@@ -119,7 +117,7 @@ public class BoardService {
         }
 
         int from = (page - 1) * 10;
-        map.put("boardList", mapper.selectAll(from, "%" + keyword + "%"));
+        map.put("boardList", mapper.selectAll(from, "%" + keyword + "%", category));
         map.put("pageInfo", pageInfo);
         return map;
     }
@@ -153,12 +151,12 @@ public class BoardService {
     }
 
 
-    private void deleteFile(Integer id){
+    private void deleteFile(Integer id) {
         // 파일명 조회
         List<BoardFile> boardFiles = fileMapper.selectNamesByBoardId(id);
 
         // s3 bucket objects 지우기
-        for (BoardFile file : boardFiles){
+        for (BoardFile file : boardFiles) {
             String key = "prj1/" + id + "/" + file.getName();
 
             DeleteObjectRequest objectRequest = DeleteObjectRequest.builder()
@@ -172,7 +170,34 @@ public class BoardService {
         fileMapper.deleteByBoardId(id);
     }
 
-    public boolean update(Board board) {
+    public boolean update(Board board, List<Integer> removeFileIds, MultipartFile[] uploadFiles) throws IOException {
+
+        // 파일 지우기
+        if (removeFileIds != null) {
+            for (Integer id : removeFileIds) {
+                // s3에서 지우기
+                BoardFile file = fileMapper.selectById(id);
+                String key = "prj1/" + board.getId() + "/" + file.getName();
+                DeleteObjectRequest objectRequest = DeleteObjectRequest.builder()
+                        .bucket(bucket)
+                        .key(key)
+                        .build();
+                s3.deleteObject(objectRequest);
+
+                // db에서 지우기
+                fileMapper.deleteById(id);
+            }
+        }
+
+        // 파일 추가하기
+        if (uploadFiles != null){
+            for (MultipartFile file : uploadFiles){
+                // s3에 올리기
+                upload(board.getId(),file);
+                // db에 추가하기
+                fileMapper.insert(board.getId(), file.getOriginalFilename());
+            }
+        }
         return mapper.update(board) == 1;
     }
 

@@ -7,64 +7,76 @@ import java.util.List;
 
 @Mapper
 public interface BoardMapper {
+
     @Insert("""
-            INSERT INTO board (title, content, writer)
-            VALUES (#{title}, #{content}, #{writer})
-            """)
+        INSERT INTO board (title, content, writer)
+        VALUES (#{title}, #{content}, #{writer})
+        """)
     @Options(useGeneratedKeys = true, keyProperty = "id")
     int insert(Board board);
 
     @Select("""
-SELECT b.id,
-       b.title,
-       b.writer,
-       m.nickName,
-       b.inserted,
-       COUNT(DISTINCT c.id) countComment,
-       COUNT(DISTINCT l.id) countLike,
-       COUNT(DISTINCT f.id) countFile
-FROM board b
-         JOIN member m ON b.writer = m.id
-         LEFT JOIN comment c on b.id = c.boardId
-         LEFT JOIN boardlike l on b.id = l.boardId
-         LEFT JOIN boardfile f on b.id = f.boardId
-         WHERE b.content LIKE #{keyword}
-         OR b.title LIKE #{keyword}
-GROUP BY b.id
-ORDER BY id DESC
-LIMIT #{from},10
-                    """)
-    List<Board> selectAll(Integer from, String keyword);
+        <script>
+        SELECT b.id,
+               b.title,
+               b.writer,
+               m.nickName,
+               b.inserted,
+               COUNT(DISTINCT c.id) countComment,
+               COUNT(DISTINCT l.id) countLike,
+               COUNT(DISTINCT f.id) countFile
+        FROM board b JOIN member m ON b.writer = m.id
+                     LEFT JOIN comment c ON b.id = c.boardId
+                     LEFT JOIN boardLike l ON b.id = l.boardId
+                     LEFT JOIN boardFile f ON b.id = f.boardId
+        WHERE 
+            <trim prefixOverrides="OR">
+                <if test="category == 'all' or category == 'title'">
+                    OR title LIKE #{keyword}
+                </if>
+                <if test="category == 'all' or category == 'content'">
+                    OR content LIKE #{keyword}
+                </if>
+            </trim>
+        GROUP BY b.id
+        ORDER BY b.id DESC
+        LIMIT #{from}, 10
+        </script>
+        """)
+    List<Board> selectAll(Integer from, String keyword, String category);
 
     @Select("""
-            SELECT b.id, b.title, b.content, b.writer, m.nickName, b.inserted
-            FROM board b JOIN member m ON b.writer = m.id
-            WHERE b.id = #{id}
-
-            """)
+        SELECT b.id,
+               b.title, 
+               b.content, 
+               b.writer, 
+               m.nickName,
+               b.inserted
+        FROM board b JOIN member m ON b.writer = m.id
+        WHERE b.id = #{id}
+        """)
     Board selectById(Integer id);
 
-
     @Delete("""
-            DELETE FROM board
-            WHERE id=#{id}
-
-            """)
+        DELETE FROM board
+        WHERE id = #{id}
+        """)
     int deleteById(Integer id);
 
     @Update("""
-            UPDATE board
-            SET title = #{title},
-                 content = #{content},
-                 writer = #{writer}
-            WHERE id= #{id}
-            """)
+        UPDATE board
+        SET title = #{title},
+            content = #{content}
+        WHERE id = #{id}
+        """)
     int update(Board board);
 
+
     @Delete("""
-            DELETE FROM board
-            WHERE writer=#{writer}
-            """)
+        DELETE FROM board
+        WHERE writer = #{writer}
+        """)
+
     int deleteByWriter(String writer);
 
     @Select("""
@@ -75,14 +87,21 @@ LIMIT #{from},10
     List<Integer> selectIdListByMemberId(String writer);
 
     @Select("""
-SELECT COUNT(*) FROM board
-WHERE title LIKE #{keyword}
-OR content LIKE #{keyword}
-
-""")
-    int countAll(String keyword);
+        <script>
+        SELECT COUNT(*) FROM board
+        WHERE 
+            <trim prefixOverrides="OR">
+                <if test="category == 'all' or category == 'title'">
+                    OR title LIKE #{keyword}
+                </if>
+                <if test="category == 'all' or category == 'content'">
+                    OR content LIKE #{keyword}
+                </if>
+            </trim>
+        </script>
+        """)
+    int countAll(String keyword, String category);
 }
-
 
 
 
